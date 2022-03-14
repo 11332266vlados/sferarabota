@@ -7,7 +7,7 @@ use Closure;
 class GroupMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Мидл, проверяющий - админ ли пользуется страницей и совершает действия.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
