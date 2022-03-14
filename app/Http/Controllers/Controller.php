@@ -13,7 +13,14 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    protected function Verification($data, $type): bool
+    /**
+     *
+     * Метод верификации данных, приходящих от пользователя.
+     *
+     * @param array $data
+     * @param string $type
+     */
+    protected function Verification(array $data, string $type): bool
     {
         $return = true;
         switch ($type) {
@@ -40,7 +47,14 @@ class Controller extends BaseController
         return $return;
     }
 
-    public function add_type(Request $request, $type)
+    /**
+     *
+     * Метод создания сущности.
+     *
+     * @param Request $request
+     * @param string $type
+     */
+    public function add_type(Request $request, string $type)
     {
         $saveData = $request->all();
         if ($this->Verification($saveData, 'save')) {
@@ -50,7 +64,14 @@ class Controller extends BaseController
         }
     }
 
-    public function edit_type(Request $request, $type)
+    /**
+     *
+     * Метод изменения сущности.
+     *
+     * @param Request $request
+     * @param string $type
+     */
+    public function edit_type(Request $request, string $type)
     {
         $editData = $request->all();
         if ($this->Verification($editData, 'edit')) {
@@ -60,7 +81,14 @@ class Controller extends BaseController
         }
     }
 
-    public function delete_type(Request $request, $type)
+    /**
+     *
+     * Метод удаления сущности.
+     *
+     * @param Request $request
+     * @param string $type
+     */
+    public function delete_type(Request $request, string $type)
     {
         $deleteData = $request->all();
         if ($this->Verification($deleteData, 'delete')) {
@@ -79,7 +107,10 @@ class Controller extends BaseController
     }
 
     /**
-     * @param $user
+     *
+     * Метод получения и структурирования конкретных данных о пользователе
+     *
+     * @param object $user
      * @return array
      */
     protected function getUserData($user): array
@@ -105,7 +136,15 @@ class Controller extends BaseController
         return $inData;
     }
 
-    protected function getUsers($filter, $order_by)
+    /**
+     *
+     * Метод получения всех пользователей в зависимости от фильтров и сортировки
+     *
+     * @param array $filter
+     * @param string $order_by
+     * @return object
+     */
+    protected function getUsers(array $filter, string $order_by)
     {
         $query = DB::table('users')->select('users.*');
         if (isset($filter['filter'])) {
@@ -116,18 +155,18 @@ class Controller extends BaseController
                     break;
                 case 'forSkills':
                     $val = (int)$filter['skill_id'];
-                    $query->leftJoin('user_skills',  'users.id', '=', 'user_skills.user_id');
+                    $query->leftJoin('user_skills', 'users.id', '=', 'user_skills.user_id');
                     $query->where('user_skills.skill_id', $val);
                     break;
                 case 'forWord':
                     $val = htmlspecialchars($filter['word']);
 
-                    $query->leftJoin('user_skills',  'users.id', '=', 'user_skills.user_id');
-                    $query->leftJoin('skills',  'skills.id', '=', 'user_skills.skill_id');
-                    $query->leftJoin('posts',  'posts.id', '=', 'users.post');
-                    $query->where('skills.name','like', '%'.$val.'%');
-                    $query->orWhere('posts.name','like', '%'.$val.'%');
-                    $query->orWhere('users.name','like', '%'.$val.'%');
+                    $query->leftJoin('user_skills', 'users.id', '=', 'user_skills.user_id');
+                    $query->leftJoin('skills', 'skills.id', '=', 'user_skills.skill_id');
+                    $query->leftJoin('posts', 'posts.id', '=', 'users.post');
+                    $query->where('skills.name', 'like', '%' . $val . '%');
+                    $query->orWhere('posts.name', 'like', '%' . $val . '%');
+                    $query->orWhere('users.name', 'like', '%' . $val . '%');
 
                     break;
             }
@@ -137,8 +176,6 @@ class Controller extends BaseController
             $query->orderByRaw($order_by)->get();
         }
 
-        $users = $query->distinct()->get();
-
-        return $users;
+        return $query->distinct()->get();
     }
 }

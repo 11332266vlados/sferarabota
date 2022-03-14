@@ -20,6 +20,7 @@ class UsersController extends Controller
             'b' => 'users.created_at ASC '
         ],
     ];
+
     private $filterData = ['forPost','forSkills','forWord'];
 
     /**
@@ -68,7 +69,13 @@ class UsersController extends Controller
     }
 
 
-    public function card($id)
+    /**
+     *
+     * Страница вывода данных о конкретном пользователе
+     *
+     * @param integer $id
+     */
+    public function card(int $id)
     {
         $user = DB::table('users')->where('id', $id)->first();
         $data['user'] = $this->getUserData($user);
@@ -79,6 +86,14 @@ class UsersController extends Controller
         return view('card', $data);
     }
 
+    /**
+     *
+     * Метод редактирования должности конкретного пользователя.
+     * Принимает POST
+     *
+     * @param Request $request
+     * @param integer $id
+     */
     public function editPost(Request $request, $id): RedirectResponse
     {
         $postData = $request->all();
@@ -90,10 +105,19 @@ class UsersController extends Controller
         return redirect()->route('card', ['id' => $id]);
     }
 
+    /**
+     *
+     * Метод редактирования умений конкретного пользователя.
+     * Принимает POST
+     *
+     * @param Request $request
+     * @param integer $id
+     */
     public function editSkills(Request $request, $id): RedirectResponse
     {
         $skillsData = $request->all();
         if ($this->Verification($skillsData, 'user_edit_skills')) {
+
             $maxCount = 5;
             $count = 0;
 
@@ -112,6 +136,12 @@ class UsersController extends Controller
         return redirect()->route('card', ['id' => $id]);
     }
 
+    /**
+     *
+     * Метод, который делает пользователя админом.
+     *
+     * @param integer $id
+     */
     public function setAdmin($id): RedirectResponse
     {
         DB::table('users')
