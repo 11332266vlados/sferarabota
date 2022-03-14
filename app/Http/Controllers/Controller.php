@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
 
 class Controller extends BaseController
@@ -65,7 +65,7 @@ class Controller extends BaseController
         $deleteData = $request->all();
         if ($this->Verification($deleteData, 'delete')) {
             DB::table($type)->where('id', $deleteData['id'])->delete();
-            switch ($type){
+            switch ($type) {
                 case 'posts':
                     DB::table('users')
                         ->where('post', $deleteData['id'])
@@ -103,5 +103,42 @@ class Controller extends BaseController
             }
         }
         return $inData;
+    }
+
+    protected function getUsers($filter, $order_by)
+    {
+        $query = DB::table('users')->select('users.*');
+        if (isset($filter['filter'])) {
+            switch ($filter['filter']) {
+                case 'forPost':
+                    $val = (int)$filter['post_id'];
+                    $query->where('post', $val);
+                    break;
+                case 'forSkills':
+                    $val = (int)$filter['skill_id'];
+                    $query->leftJoin('user_skills',  'users.id', '=', 'user_skills.user_id');
+                    $query->where('user_skills.skill_id', $val);
+                    break;
+                case 'forWord':
+                    $val = htmlspecialchars($filter['word']);
+
+                    $query->leftJoin('user_skills',  'users.id', '=', 'user_skills.user_id');
+                    $query->leftJoin('skills',  'skills.id', '=', 'user_skills.skill_id');
+                    $query->leftJoin('posts',  'posts.id', '=', 'users.post');
+                    $query->where('skills.name','like', '%'.$val.'%');
+                    $query->orWhere('posts.name','like', '%'.$val.'%');
+                    $query->orWhere('users.name','like', '%'.$val.'%');
+
+                    break;
+            }
+        }
+
+        if (!empty($order_by)) {
+            $query->orderByRaw($order_by)->get();
+        }
+
+        $users = $query->distinct()->get();
+
+        return $users;
     }
 }

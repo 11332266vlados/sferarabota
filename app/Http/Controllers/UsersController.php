@@ -12,14 +12,15 @@ class UsersController extends Controller
 
     private $sort = [
         'name' => [
-            'a' => 'name ASC ',
-            'b' => 'name DESC '
+            'a' => 'users.name ASC ',
+            'b' => 'users.name DESC '
         ],
         'reg' => [
-            'a' => 'created_at DESC ',
-            'b' => 'created_at ASC '
+            'a' => 'users.created_at DESC ',
+            'b' => 'users.created_at ASC '
         ],
     ];
+    private $filterData = ['forPost','forSkills','forWord'];
 
     /**
      * Show the application dashboard.
@@ -28,28 +29,44 @@ class UsersController extends Controller
      */
     public function index(): Renderable
     {
+        //Сортировка
         $order_by = '';
+        $data['getString'] = '';
         if (isset($_GET['name']) && isset($this->sort['name'][$_GET['name']])) {
             $data['sort']['name'] = $_GET['name'];
             $order_by .= $this->sort['name'][$_GET['name']];
+            $data['getString'] = '?name='.$_GET['name'];
         }
 
         if (isset($_GET['reg']) && isset($this->sort['reg'][$_GET['reg']])) {
             $data['sort']['reg'] = $_GET['reg'];
             $order_by .= $this->sort['reg'][$_GET['reg']];
+            $data['getString'] = '?reg='.$_GET['reg'];
         }
-        if (!empty($order_by)) {
-            $users = DB::table('users')->orderByRaw($order_by)->get();
-        } else {
-            $users = DB::table('users')->get();
+
+        //Фильтр
+        $filter = [];
+        if(isset($_POST['filter']) && in_array($_POST['filter'],$this->filterData)){
+            $filter = $_POST;
         }
+
+        //получение пользовательских данных
         $usersData = [];
+
+        $users = $this->getUsers($filter,$order_by);
+
         foreach ($users as $user) {
             $usersData[] = $this->getUserData($user);
         }
+
         $data['users'] = $usersData;
+
+        //Все навыки и должности для фильтра
+        $data['posts'] = DB::table('posts')->get();
+        $data['skills'] = DB::table('skills')->get();
         return view('users', $data);
     }
+
 
     public function card($id)
     {

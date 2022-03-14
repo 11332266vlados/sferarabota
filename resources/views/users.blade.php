@@ -15,7 +15,7 @@
                         <li><a class="dropdown-item @if(isset($sort['reg']) && $sort['reg'] == 'b') bg-primary text-white @endif" href="{{route('users')}}?reg=b">{{ __('auth.sortRegAsc') }}</a></li>
                     </ul>
                 </div>
-                <button class="btn btn-primary">Фильтр</button>
+                <button class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#usersFilterModal">Фильтр</button>
             </div>
         </div>
         <div class="row">
@@ -37,5 +37,7 @@
             @endforeach
         </div>
     </div>
+
+    @include('modals/users_filter')
 @endsection
 

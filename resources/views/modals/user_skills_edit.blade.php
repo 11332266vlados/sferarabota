@@ -7,7 +7,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-center">выберите только 5 умений</p>
+                    <p class="text-center">{{ __('auth.skillText') }}</p>
                     <div class="mb-3">
                         <select  class="form-select" size="10" multiple name="skills[]">
                             @foreach($skills as $skill)
